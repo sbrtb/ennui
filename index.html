@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Ennui App</title>
+    <!-- Lien vers le Manifest PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --card-color: #16213e;
+            --accent-color: #e94560;
+            --text-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            -webkit-user-select: none; /* Évite la sélection de texte sur tablette */
+            user-select: none;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0px 4px 10px rgba(233, 69, 96, 0.3);
+        }
+
+        .card {
+            background-color: var(--card-color);
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+            border: 2px solid rgba(233, 69, 96, 0.1);
+        }
+
+        .activity-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .activity-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-bottom: 2px dashed var(--accent-color);
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+            transition: all 0.2s ease;
+            width: 100%;
+            max-width: 350px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .pop { animation: popEffect 0.4s ease; }
+        @keyframes popEffect {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Qu'est-ce qu'on fait ?</h1>
+        
+        <div class="card">
+            <div id="activity-display" class="activity-text">Clique sur le bouton pour défier l'ennui !</div>
+            <div id="link-container"></div>
+        </div>
+
+        <button id="action-btn" onclick="proposerActivite()">Générer une idée</button>
+    </div>
+
+    <script>
+        const activites = [
+            { text: "🧱 Construis un Lego !", url: "https://frugalfun4boys.com/lego-projects-for-kids/", linkText: "Voir des idées de projets" },
+            { text: "📖 Lis un bon livre (La Bible ou un Roman)" },
+            { text: "💡 Devance tout le monde en culture générale !", url: "https://secouchermoinsbete.fr/", linkText: "Ouvrir Se Coucher Moins Bête" },
+            { text: "📺 Regarde un documentaire passionnant" },
+            { text: "🏃‍♂️ Fais une bonne séance de sport !" },
+            { text: "🧠 Résous une énigme ou un casse-tête !", url: "https://enigmatik.epikurieu.com/", linkText: "Ouvrir Énigmatik" }
+        ];
+
+        let derniereActivite = -1;
+
+        function proposerActivite() {
+            const textDisplay = document.getElementById('activity-display');
+            const linkContainer = document.getElementById('link-container');
+            const button = document.getElementById('action-btn');
+            
+            let indexAleatoire;
+            do {
+                indexAleatoire = Math.floor(Math.random() * activites.length);
+            } while (indexAleatoire === derniereActivite && activites.length > 1);
+            
+            derniereActivite = indexAleatoire;
+            const choix = activites[indexAleatoire];
+
+            textDisplay.parentElement.classList.remove('pop');
+            void textDisplay.parentElement.offsetWidth; 
+            textDisplay.parentElement.classList.add('pop');
+
+            textDisplay.innerText = choix.text;
+
+            if (choix.url) {
+                linkContainer.innerHTML = `<a href="${choix.url}" target="_blank" class="activity-link">${choix.linkText} ↗</a>`;
+            } else {
+                linkContainer.innerHTML = '';
+            }
+
+            button.innerText = "Proposer autre chose";
+        }
+
+        // --- ENREGISTREMENT DU SERVICE WORKER (PWA) ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker enregistré !', reg))
+                    .catch(err => console.log('Erreur de Service Worker', err));
+            });
+        }
+    </script>
+</body>
+</html>
